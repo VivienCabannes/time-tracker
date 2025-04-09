@@ -440,7 +440,8 @@ function CustomDrawerContent(props) {
 // manages a reload flag to refresh logs, and sets up export logic.
 const Drawer = createDrawerNavigator();
 
-export default function MainApp() {
+// Safe App
+export default function App() {
   const [config, setConfig] = useState(DEFAULT_CONFIG);
   const [theme, setTheme] = useState(DEFAULT_THEME);
   const [reloadFlag, setReloadFlag] = useState(false);
@@ -482,47 +483,40 @@ export default function MainApp() {
   };
 
   return (
-    <NavigationContainer>
-      <Drawer.Navigator
-        initialRouteName="Home"
-        drawerContent={(props) => (
-          <CustomDrawerContent {...props} theme={theme} exportLogs={handleExportLogs} />
-        )}
-        screenOptions={{
-          headerStyle: { backgroundColor: theme === 'dark' ? '#282828' : '#fff' },
-          headerTintColor: theme === 'dark' ? '#ccc' : '#000',
-        }}
-      >
-        <Drawer.Screen name="Home" options={{ headerTitle: "Time Tracker", drawerLabel: "Home" }}>
-          {(props) => (
-            <HomeScreen {...props} config={config} theme={theme} reloadFlag={reloadFlag} />
-          )}
-        </Drawer.Screen>
-        <Drawer.Screen name="Logs">
-          {(props) => <LogsScreen {...props} theme={theme} />}
-        </Drawer.Screen>
-        <Drawer.Screen name="Settings">
-          {(props) => (
-            <SettingsScreen
-              {...props}
-              config={config}
-              setConfig={setConfig}
-              theme={theme}
-              setTheme={setTheme}
-              refreshHome={refreshHome}
-            />
-          )}
-        </Drawer.Screen>
-      </Drawer.Navigator>
-    </NavigationContainer>
-  );
-}
-
-// Safe App
-export default function App() {
-  return (
     <SafeAreaProvider>
-      <MainApp />
+      <NavigationContainer>
+        <Drawer.Navigator
+          initialRouteName="Home"
+          drawerContent={(props) => (
+            <CustomDrawerContent {...props} theme={theme} exportLogs={handleExportLogs} />
+          )}
+          screenOptions={{
+            headerStyle: { backgroundColor: theme === 'dark' ? '#282828' : '#fff' },
+            headerTintColor: theme === 'dark' ? '#ccc' : '#000',
+          }}
+        >
+          <Drawer.Screen name="Home" options={{ headerTitle: "Time Tracker", drawerLabel: "Home" }}>
+            {(props) => (
+              <HomeScreen {...props} config={config} theme={theme} reloadFlag={reloadFlag} />
+            )}
+          </Drawer.Screen>
+          <Drawer.Screen name="Logs">
+            {(props) => <LogsScreen {...props} theme={theme} />}
+          </Drawer.Screen>
+          <Drawer.Screen name="Settings">
+            {(props) => (
+              <SettingsScreen
+                {...props}
+                config={config}
+                setConfig={setConfig}
+                theme={theme}
+                setTheme={setTheme}
+                refreshHome={refreshHome}
+              />
+            )}
+          </Drawer.Screen>
+        </Drawer.Navigator>
+      </NavigationContainer>
     </SafeAreaProvider>
   );
 }
