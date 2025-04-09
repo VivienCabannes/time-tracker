@@ -314,7 +314,7 @@ function LogsScreen({ theme }) {
     useCallback(() => {
       (async () => {
         const loadedLogs = await loadLogsFromStorage();
-        setLogs(loadedLogs);
+        setLogs(loadedLogs.slice().reverse());
       })();
     }, [])
   );
