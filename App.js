@@ -21,6 +21,7 @@ import {
   DrawerContentScrollView,
   DrawerItem
 } from '@react-navigation/drawer';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 // Keys and default configuration
 const CONFIG_KEY = 'activityConfig';
@@ -182,7 +183,7 @@ const saveLogsToStorage = async (logs) => {
 const exportLogsFunction = async (logs, clearLogsCallback) => {
   const logString = JSON.stringify(logs, null, 2);
   try {
-    const now = new Date().toISOString().replace(/:/g, '-');
+    const now = new Date().toISOString().replace(/:/g, '_');
     const fileName = `activity_logs_${now}.json`;
     if (Platform.OS === 'web') {
         const blob = new Blob([logString], { type: 'application/json' });
@@ -322,7 +323,7 @@ function LogsScreen({ theme }) {
   const renderItem = ({ item }) => (
     <View style={styles.logItem}>
       <Text style={styles.logText}>
-        {item.timestamp} - {item.activity}
+        {item.timestamp.split('.')[0].replace('T', ' ')} - {item.activity}
       </Text>
       {item.comments &&
         item.comments.map((comment, i) => (
@@ -439,7 +440,7 @@ function CustomDrawerContent(props) {
 // manages a reload flag to refresh logs, and sets up export logic.
 const Drawer = createDrawerNavigator();
 
-export default function App() {
+export default function MainApp() {
   const [config, setConfig] = useState(DEFAULT_CONFIG);
   const [theme, setTheme] = useState(DEFAULT_THEME);
   const [reloadFlag, setReloadFlag] = useState(false);
@@ -514,5 +515,14 @@ export default function App() {
         </Drawer.Screen>
       </Drawer.Navigator>
     </NavigationContainer>
+  );
+}
+
+// Safe App
+export default function App() {
+  return (
+    <SafeAreaProvider>
+      <MainApp />
+    </SafeAreaProvider>
   );
 }
