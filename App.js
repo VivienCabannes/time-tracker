@@ -27,7 +27,7 @@ const THEME_KEY = 'appTheme';
 const DEFAULT_THEME = 'light';
 const DEFAULT_CONFIG = { activities: ['Work', 'Break', 'Exercise'] };
 
-// Use the storage key from the second option for logs.
+// Storage key
 const LOGS_KEY = '@activity_logs';
 
 //
@@ -47,14 +47,12 @@ const getStyles = (theme) => {
       color: isDark ? '#ccc' : '#000',
       marginBottom: 20,
     },
-    // Use center alignment for buttons similar to option 2.
     buttonContainer: {
       flexDirection: 'row',
       flexWrap: 'wrap',
       justifyContent: 'center',
       marginBottom: 20,
     },
-    // Update button spacing (padding and margin) as in option 2.
     activityButton: {
       backgroundColor: '#007aff',
       padding: 15,
@@ -69,7 +67,6 @@ const getStyles = (theme) => {
       color: isDark ? '#ccc' : '#007aff',
       fontSize: 18,
       textAlign: 'center',
-      textDecorationLine: 'underline',
     },
     modalOverlay: {
       flex: 1,
@@ -160,7 +157,7 @@ const getStyles = (theme) => {
 };
 
 //
-// Logging and export helper functions (from the second option)
+// Logging and export helper functions
 //
 const loadLogsFromStorage = async () => {
   try {
@@ -185,19 +182,22 @@ const exportLogsFunction = async (logs, clearLogsCallback) => {
   const logString = JSON.stringify(logs, null, 2);
   try {
     if (Platform.OS === 'web') {
-      const blob = new Blob([logString], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = 'activity_logs.json';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      URL.revokeObjectURL(url);
-    } else {
-      const fileUri = FileSystem.documentDirectory + 'activity_logs.json';
-      await FileSystem.writeAsStringAsync(fileUri, logString);
-      await Share.share({ url: fileUri });
+        const now = new Date().toISOString().replace(/:/g, '-');
+        const fileName = `activity_logs_${now}.json`;
+        const blob = new Blob([logString], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+      } else {
+        // Mobile export logic remains unchanged
+        const fileUri = FileSystem.documentDirectory + 'activity_logs.json';
+        await FileSystem.writeAsStringAsync(fileUri, logString);
+        await Share.share({ url: fileUri });
     }
     await AsyncStorage.removeItem(LOGS_KEY);
     clearLogsCallback();
@@ -209,8 +209,7 @@ const exportLogsFunction = async (logs, clearLogsCallback) => {
 };
 
 //
-// Home Screen: Uses design from the first option with updated logging logic,
-// but without the header title and with updated button spacing.
+// Home Screen
 //
 function HomeScreen({ navigation, config, theme, reloadFlag }) {
   const [logs, setLogs] = useState([]);
@@ -299,8 +298,7 @@ function HomeScreen({ navigation, config, theme, reloadFlag }) {
 }
 
 //
-// Logs Screen: Now uses useFocusEffect to reload logs each time it’s focused.
-// The header title has been removed.
+// Logs Screen
 //
 function LogsScreen({ theme }) {
   const [logs, setLogs] = useState([]);
@@ -342,8 +340,8 @@ function LogsScreen({ theme }) {
 }
 
 //
-// Settings Screen: Similar update—header title removed.
-// It still provides YAML configuration editing and theme selection.
+// Settings Screen
+// It provides YAML configuration editing and theme selection.
 function SettingsScreen({ navigation, config, setConfig, theme, setTheme, refreshHome }) {
   const [yamlText, setYamlText] = useState('');
   const [selectedTheme, setSelectedTheme] = useState(theme);
@@ -400,7 +398,7 @@ function SettingsScreen({ navigation, config, setConfig, theme, setTheme, refres
 }
 
 //
-// Custom Drawer: Uses the first option’s drawer content with an "Export Logs" action.
+// Custom Drawer
 function CustomDrawerContent(props) {
   const { navigation, theme, exportLogs } = props;
   const styles = getStyles(theme);
@@ -488,7 +486,7 @@ export default function App() {
           headerTintColor: theme === 'dark' ? '#ccc' : '#000',
         }}
       >
-        <Drawer.Screen name="Home">
+        <Drawer.Screen name="Home" options={{ headerTitle: "Time Tracker", drawerLabel: "Home" }}>
           {(props) => (
             <HomeScreen {...props} config={config} theme={theme} reloadFlag={reloadFlag} />
           )}
