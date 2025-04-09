@@ -35,4 +35,9 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
+# build
+ios/
+android/
+
+# todo
 TODO.md
