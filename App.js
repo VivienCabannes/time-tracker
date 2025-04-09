@@ -182,9 +182,9 @@ const saveLogsToStorage = async (logs) => {
 const exportLogsFunction = async (logs, clearLogsCallback) => {
   const logString = JSON.stringify(logs, null, 2);
   try {
+    const now = new Date().toISOString().replace(/:/g, '-');
+    const fileName = `activity_logs_${now}.json`;
     if (Platform.OS === 'web') {
-        const now = new Date().toISOString().replace(/:/g, '-');
-        const fileName = `activity_logs_${now}.json`;
         const blob = new Blob([logString], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
@@ -196,7 +196,7 @@ const exportLogsFunction = async (logs, clearLogsCallback) => {
         URL.revokeObjectURL(url);
       } else {
         // Mobile export logic remains unchanged
-        const fileUri = FileSystem.documentDirectory + 'activity_logs.json';
+        const fileUri = FileSystem.documentDirectory + fileName;
         await FileSystem.writeAsStringAsync(fileUri, logString);
         await Share.share({ url: fileUri });
     }
