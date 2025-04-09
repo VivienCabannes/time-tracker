@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -14,7 +14,7 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import yaml from 'js-yaml';
 import * as FileSystem from 'expo-file-system';
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer, useFocusEffect } from '@react-navigation/native';
 import {
   createDrawerNavigator,
   DrawerContentScrollView,
@@ -31,7 +31,7 @@ const DEFAULT_CONFIG = { activities: ['Work', 'Break', 'Exercise'] };
 const LOGS_KEY = '@activity_logs';
 
 //
-// Styles generator (same as first option)
+// Styles generator (same as before)
 //
 const getStyles = (theme) => {
   const isDark = theme === 'dark';
@@ -158,7 +158,7 @@ const getStyles = (theme) => {
 };
 
 //
-// Logging and export helper functions (from second option)
+// Logging and export helper functions (from the second option)
 //
 const loadLogsFromStorage = async () => {
   try {
@@ -207,9 +207,7 @@ const exportLogsFunction = async (logs, clearLogsCallback) => {
 };
 
 //
-// Home Screen: Uses the first version’s design but with updated logging logic.
-// Logs are loaded from storage and new activities are appended.
-// Comments are added to the *last* (most recent) log.
+// Home Screen: Uses the design from the first option with updated logging logic.
 //
 function HomeScreen({ navigation, config, theme, reloadFlag }) {
   const [logs, setLogs] = useState([]);
@@ -217,7 +215,7 @@ function HomeScreen({ navigation, config, theme, reloadFlag }) {
   const [commentText, setCommentText] = useState('');
   const styles = getStyles(theme);
 
-  // Load logs when the screen mounts or when reloadFlag changes.
+  // Reload logs whenever reloadFlag changes.
   useEffect(() => {
     (async () => {
       const loadedLogs = await loadLogsFromStorage();
@@ -225,7 +223,7 @@ function HomeScreen({ navigation, config, theme, reloadFlag }) {
     })();
   }, [reloadFlag]);
 
-  // Record an activity (append a new log).
+  // Record an activity by appending a new log.
   const recordActivity = async (activity) => {
     const newEntry = {
       activity,
@@ -237,7 +235,7 @@ function HomeScreen({ navigation, config, theme, reloadFlag }) {
     setLogs(updatedLogs);
   };
 
-  // Add a comment to the most recent log (the last item).
+  // Add a comment to the most recent log.
   const addComment = async () => {
     if (logs.length === 0) {
       Alert.alert('No logs available', 'Please log an activity first.');
@@ -298,18 +296,21 @@ function HomeScreen({ navigation, config, theme, reloadFlag }) {
 }
 
 //
-// Logs Screen: Uses the first option’s design but loads logs using the new routines.
+// Logs Screen: Now uses useFocusEffect to reload logs each time it’s focused.
+// This ensures the list updates after any recent activity or comment additions.
 //
 function LogsScreen({ theme }) {
   const [logs, setLogs] = useState([]);
   const styles = getStyles(theme);
 
-  useEffect(() => {
-    (async () => {
-      const loadedLogs = await loadLogsFromStorage();
-      setLogs(loadedLogs);
-    })();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      (async () => {
+        const loadedLogs = await loadLogsFromStorage();
+        setLogs(loadedLogs);
+      })();
+    }, [])
+  );
 
   const renderItem = ({ item }) => (
     <View style={styles.logItem}>
@@ -338,7 +339,7 @@ function LogsScreen({ theme }) {
 }
 
 //
-// Settings Screen: Keeps the same YAML configuration editing and theme selection logic.
+// Settings Screen: Remains unchanged (YAML configuration editing and theme selection).
 //
 function SettingsScreen({ navigation, config, setConfig, theme, setTheme, refreshHome }) {
   const [yamlText, setYamlText] = useState('');
@@ -396,7 +397,7 @@ function SettingsScreen({ navigation, config, setConfig, theme, setTheme, refres
 }
 
 //
-// Custom Drawer: Uses the first option’s drawer content and includes an "Export Logs" action.
+// Custom Drawer: Keeps the same drawer content with an "Export Logs" action.
 //
 function CustomDrawerContent(props) {
   const { navigation, theme, exportLogs } = props;
@@ -429,7 +430,7 @@ function CustomDrawerContent(props) {
 
 //
 // Main App Component: Loads stored configuration and theme,
-// manages a reload flag to refresh logs, and defines the export logic.
+// manages a reload flag to refresh logs, and sets up export logic.
 //
 const Drawer = createDrawerNavigator();
 
@@ -463,12 +464,12 @@ export default function App() {
     loadTheme();
   }, []);
 
-  // Toggle the flag so HomeScreen reloads its logs.
+  // Toggle reload flag for HomeScreen refresh.
   const refreshHome = () => {
     setReloadFlag(!reloadFlag);
   };
 
-  // Export logs using the new export logic.
+  // Export logs using the updated export logic.
   const handleExportLogs = async () => {
     const logs = await loadLogsFromStorage();
     await exportLogsFunction(logs, refreshHome);
