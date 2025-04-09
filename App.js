@@ -7,6 +7,7 @@ import {
   Modal,
   TextInput,
   FlatList,
+  KeyboardAvoidingView,
   Platform,
   Alert,
   Share
@@ -272,26 +273,31 @@ function HomeScreen({ navigation, config, theme, reloadFlag }) {
       </TouchableOpacity>
 
       <Modal visible={commentModalVisible} transparent animationType="slide">
-        <TouchableOpacity
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
           style={styles.modalOverlay}
-          activeOpacity={1}
-          onPressOut={() => setCommentModalVisible(false)}
         >
-          <View style={styles.modalContent}>
-            <TextInput
-              style={styles.commentInput}
-              placeholder="Enter comment..."
-              placeholderTextColor={theme === 'dark' ? '#aaa' : '#555'}
-              value={commentText}
-              onChangeText={setCommentText}
-              onSubmitEditing={addComment}
-              autoFocus
-            />
-            <TouchableOpacity style={styles.submitButton} onPress={addComment}>
-              <Text style={styles.submitButtonText}>➤</Text>
-            </TouchableOpacity>
-          </View>
-        </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.modalOverlay}
+            activeOpacity={1}
+            onPressOut={() => setCommentModalVisible(false)}
+          >
+            <View style={styles.modalContent}>
+              <TextInput
+                style={styles.commentInput}
+                placeholder="Enter comment..."
+                placeholderTextColor={theme === 'dark' ? '#aaa' : '#555'}
+                value={commentText}
+                onChangeText={setCommentText}
+                onSubmitEditing={addComment}
+                autoFocus
+              />
+              <TouchableOpacity style={styles.submitButton} onPress={addComment}>
+                <Text style={styles.submitButtonText}>➤</Text>
+              </TouchableOpacity>
+            </View>
+          </TouchableOpacity>
+        </KeyboardAvoidingView>
       </Modal>
     </View>
   );
