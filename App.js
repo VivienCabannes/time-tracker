@@ -31,7 +31,7 @@ const DEFAULT_CONFIG = { activities: ['Work', 'Break', 'Exercise'] };
 const LOGS_KEY = '@activity_logs';
 
 //
-// Styles generator (same as before)
+// Styles generator with updated spacing for buttons and container.
 //
 const getStyles = (theme) => {
   const isDark = theme === 'dark';
@@ -47,16 +47,18 @@ const getStyles = (theme) => {
       color: isDark ? '#ccc' : '#000',
       marginBottom: 20,
     },
+    // Use center alignment for buttons similar to option 2.
     buttonContainer: {
       flexDirection: 'row',
       flexWrap: 'wrap',
-      justifyContent: 'space-around',
+      justifyContent: 'center',
       marginBottom: 20,
     },
+    // Update button spacing (padding and margin) as in option 2.
     activityButton: {
       backgroundColor: '#007aff',
-      padding: 10,
-      margin: 5,
+      padding: 15,
+      margin: 10,
       borderRadius: 8,
     },
     buttonText: {
@@ -207,7 +209,8 @@ const exportLogsFunction = async (logs, clearLogsCallback) => {
 };
 
 //
-// Home Screen: Uses the design from the first option with updated logging logic.
+// Home Screen: Uses design from the first option with updated logging logic,
+// but without the header title and with updated button spacing.
 //
 function HomeScreen({ navigation, config, theme, reloadFlag }) {
   const [logs, setLogs] = useState([]);
@@ -253,7 +256,7 @@ function HomeScreen({ navigation, config, theme, reloadFlag }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Daily Activity Logger</Text>
+      {/* Title removed since the Menu bar now displays screen title */}
       <View style={styles.buttonContainer}>
         {config.activities && config.activities.map((activity, index) => (
           <TouchableOpacity
@@ -297,7 +300,7 @@ function HomeScreen({ navigation, config, theme, reloadFlag }) {
 
 //
 // Logs Screen: Now uses useFocusEffect to reload logs each time it’s focused.
-// This ensures the list updates after any recent activity or comment additions.
+// The header title has been removed.
 //
 function LogsScreen({ theme }) {
   const [logs, setLogs] = useState([]);
@@ -328,7 +331,7 @@ function LogsScreen({ theme }) {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Logs</Text>
+      {/* Title removed */}
       <FlatList
         data={logs}
         keyExtractor={(_, index) => index.toString()}
@@ -339,8 +342,8 @@ function LogsScreen({ theme }) {
 }
 
 //
-// Settings Screen: Remains unchanged (YAML configuration editing and theme selection).
-//
+// Settings Screen: Similar update—header title removed.
+// It still provides YAML configuration editing and theme selection.
 function SettingsScreen({ navigation, config, setConfig, theme, setTheme, refreshHome }) {
   const [yamlText, setYamlText] = useState('');
   const [selectedTheme, setSelectedTheme] = useState(theme);
@@ -366,7 +369,7 @@ function SettingsScreen({ navigation, config, setConfig, theme, setTheme, refres
 
   return (
     <View style={styles.container}>
-      <Text style={styles.header}>Settings</Text>
+      {/* Title removed */}
       <Text style={styles.label}>Activity YAML Config:</Text>
       <TextInput
         style={[styles.yamlInput, { height: 150 }]}
@@ -397,8 +400,7 @@ function SettingsScreen({ navigation, config, setConfig, theme, setTheme, refres
 }
 
 //
-// Custom Drawer: Keeps the same drawer content with an "Export Logs" action.
-//
+// Custom Drawer: Uses the first option’s drawer content with an "Export Logs" action.
 function CustomDrawerContent(props) {
   const { navigation, theme, exportLogs } = props;
   const styles = getStyles(theme);
@@ -431,7 +433,6 @@ function CustomDrawerContent(props) {
 //
 // Main App Component: Loads stored configuration and theme,
 // manages a reload flag to refresh logs, and sets up export logic.
-//
 const Drawer = createDrawerNavigator();
 
 export default function App() {
