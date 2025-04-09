@@ -34,3 +34,23 @@ You can use it, e.g., to understand where you spend most of your time, or to bil
   "timestamp": "2025-04-09T15:00:00.000Z",
   "comments": ["Focused session", "Wrote report"]
 }
+```
+
+## Building the Application
+
+You can either build with Expo Go, which allow you to load your app in the Expo Go app, or with eas build.
+To build the app with Expo Go, run the following command and follow the stdout instructions.
+```shell
+npx expo start
+```
+You can also test the web add by adding the option `--web`.
+
+To build the app with eas build, run the following command.
+```shell
+eas build --profile development
+```
+This will work well for Android, and iOS if you have a developer account.
+Otherwise, you can run the following command, before using XCode to image the build on a device (simulated or real).
+```shell
+npx expo prebuild
+```
