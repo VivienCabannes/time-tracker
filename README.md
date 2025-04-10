@@ -47,10 +47,10 @@ You can also test the web add by adding the option `--web`.
 
 To build the app with eas build, run the following command.
 ```shell
-eas build --profile development
+eas build --profile development --platform android
 ```
 This will work well for Android, and iOS if you have a developer account.
 Otherwise, you can run the following command, before using XCode to image the build on a device (simulated or real).
 ```shell
-npx expo prebuild
+npx expo prebuild --platform ios
 ```
