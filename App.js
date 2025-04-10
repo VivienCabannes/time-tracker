@@ -185,25 +185,61 @@ const exportLogsFunction = async (logs, clearLogsCallback) => {
   try {
     const now = new Date().toISOString().replace(/:/g, '_');
     const fileName = `activity_logs_${now}.json`;
+
     if (Platform.OS === 'web') {
-        const blob = new Blob([logString], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const link = document.createElement('a');
-        link.href = url;
-        link.download = fileName;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(url);
-      } else {
-        // Mobile export logic remains unchanged
-        const fileUri = FileSystem.documentDirectory + fileName;
-        await FileSystem.writeAsStringAsync(fileUri, logString);
-        await Share.share({ url: fileUri });
+      const blob = new Blob([logString], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      await AsyncStorage.removeItem(LOGS_KEY);
+      clearLogsCallback();
+      return;
     }
-    await AsyncStorage.removeItem(LOGS_KEY);
-    clearLogsCallback();
-    Alert.alert('Success', 'Logs exported and cleared.');
+
+    // Mobile Export: Use Android-specific logic
+    if (Platform.OS === 'android') {
+      await Share.share({ message: logString });
+    } else {
+      // iOS export logic, using file URI
+      const fileUri = FileSystem.documentDirectory + fileName;
+      await FileSystem.writeAsStringAsync(fileUri, logString);
+      await Share.share({ url: fileUri });
+    }
+
+    // On mobile, delay the alert until after the Share UI is fully dismissed.
+    setTimeout(() => {
+      Alert.alert(
+        'Delete Logs',
+        'Click yes if you have exported the logs.',
+        [
+          {
+            text: 'No',
+            style: 'cancel',
+            onPress: () => {},
+          },
+          {
+            text: 'Yes',
+            onPress: async () => {
+              try {
+                await AsyncStorage.removeItem(LOGS_KEY);
+                clearLogsCallback();
+                Alert.alert('Logs cleared.');
+              } catch (err) {
+                console.error('Error clearing logs:', err);
+                Alert.alert('Error', 'Failed to clear logs.');
+              }
+            },
+          },
+        ],
+        { cancelable: false }
+      );
+    }, 500);
   } catch (error) {
     console.error('Error exporting logs:', error);
     Alert.alert('Export Error', 'Failed to export logs.');
