@@ -257,7 +257,7 @@ function HomeScreen({ config, theme, reloadFlag }) {
                 const minH = 20;
                 const maxH = 20 * 10;
                 const newH = e.nativeEvent.contentSize.height;
-                setCommentInputHeight(Math.max(Math.min(newH, maxH)), minH);
+                setCommentInputHeight(Math.max(Math.min(newH, maxH), minH));
               }}
               // Web: Enter to send, Shift+Enter for newline
               onKeyPress={(e) => {
