@@ -1,21 +1,21 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import {
-  View,
-  Text,
-  TouchableOpacity,
-  StyleSheet,
-  Modal,
-  TextInput,
+  Alert,
   FlatList,
   KeyboardAvoidingView,
   Platform,
-  Alert,
-  Share
+  Modal,
+  Share,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import yaml from 'js-yaml';
 import * as FileSystem from 'expo-file-system';
-import { NavigationContainer, useFocusEffect } from '@react-navigation/native';
+import { useFocusEffect, NavigationContainer } from '@react-navigation/native';
 import {
   createDrawerNavigator,
   DrawerContentScrollView,
@@ -35,128 +35,52 @@ const LOGS_KEY = '@activity_logs';
 //
 // Styles generator with updated spacing for buttons and container.
 //
-const getStyles = (theme) => {
+function getStyles(theme) {
   const isDark = theme === 'dark';
   return StyleSheet.create({
-    container: {
-      flex: 1,
-      backgroundColor: isDark ? '#282828' : '#fff',
-      padding: 16,
-    },
-    header: {
-      fontSize: 24,
-      fontWeight: 'bold',
-      color: isDark ? '#ccc' : '#000',
-      marginBottom: 20,
-    },
-    buttonContainer: {
-      flexDirection: 'row',
-      flexWrap: 'wrap',
-      justifyContent: 'center',
-      marginBottom: 20,
-    },
-    activityButton: {
-      backgroundColor: '#007aff',
-      padding: 15,
-      margin: 10,
-      borderRadius: 8,
-    },
-    buttonText: {
-      color: '#fff',
-      fontSize: 16,
-    },
-    addCommentText: {
-      color: isDark ? '#ccc' : '#007aff',
-      fontSize: 18,
-      textAlign: 'center',
-    },
-    modalOverlay: {
-      flex: 1,
-      justifyContent: 'flex-end',
-      backgroundColor: 'rgba(0,0,0,0.4)',
-    },
-    modalContent: {
-      backgroundColor: isDark ? '#444' : '#fff',
-      padding: 16,
-      flexDirection: 'row',
-      alignItems: 'center',
-    },
+    container: { flex: 1, backgroundColor: isDark ? '#282828' : '#fff', padding: 16 },
+    header: { fontSize: 24, fontWeight: 'bold', color: isDark ? '#ccc' : '#000', marginBottom: 20 },
+    buttonContainer: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', marginBottom: 20 },
+    activityButton: { backgroundColor: '#007aff', padding: 15, margin: 10, borderRadius: 8 },
+    buttonText: { color: '#fff', fontSize: 16 },
+    addCommentText: { color: isDark ? '#ccc' : '#007aff', fontSize: 18, textAlign: 'center', marginVertical: 10 },
+    modalOverlay: { flex: 1, justifyContent: 'flex-end', backgroundColor: 'rgba(0,0,0,0.4)' },
+    modalContent: { backgroundColor: isDark ? '#444' : '#fff', padding: 16 },
     commentInput: {
-      flex: 1,
+      flexGrow: 1,
       borderColor: isDark ? '#ccc' : '#000',
       borderWidth: 1,
       borderRadius: 8,
       padding: 8,
       color: isDark ? '#fff' : '#000',
       backgroundColor: isDark ? '#333' : '#fff',
+      textAlignVertical: 'top',
     },
     submitButton: {
-      marginLeft: 10,
+      width: 36,
+      height: 36,
+      borderRadius: 18,
       backgroundColor: '#007aff',
-      borderRadius: 20,
-      padding: 10,
-    },
-    submitButtonText: {
-      color: '#fff',
-      fontSize: 20,
-    },
-    logItem: {
-      padding: 10,
-      borderBottomWidth: 1,
-      borderColor: isDark ? '#555' : '#ccc',
-    },
-    logText: {
-      color: isDark ? '#ccc' : '#000',
-      fontSize: 16,
-    },
-    commentText: {
-      color: isDark ? '#aaa' : '#555',
-      fontSize: 14,
-      marginLeft: 10,
-    },
-    label: {
-      fontSize: 16,
-      color: isDark ? '#ccc' : '#000',
-      marginBottom: 8,
-    },
-    yamlInput: {
-      borderColor: isDark ? '#ccc' : '#000',
-      borderWidth: 1,
-      borderRadius: 8,
-      padding: 8,
-      color: isDark ? '#fff' : '#000',
-      marginBottom: 20,
-    },
-    themeSelector: {
-      flexDirection: 'row',
-      marginBottom: 20,
-    },
-    radioOption: {
-      marginRight: 20,
-    },
-    radioText: {
-      fontSize: 16,
-      color: isDark ? '#ccc' : '#000',
-    },
-    saveButton: {
-      backgroundColor: '#007aff',
-      padding: 10,
-      borderRadius: 8,
       alignItems: 'center',
+      justifyContent: 'center',
+      marginLeft: 8,
     },
-    saveButtonText: {
-      color: '#fff',
-      fontSize: 16,
-    },
-    drawerContainer: {
-      backgroundColor: isDark ? '#282828' : '#fff',
-    },
-    drawerLabel: {
-      color: isDark ? '#ccc' : '#000',
-      fontSize: 16,
-    },
+    submitButtonText: { color: '#fff', fontSize: 18 },
+    logItem: { padding: 10, borderBottomWidth: 1, borderColor: isDark ? '#555' : '#ccc' },
+    logText: { color: isDark ? '#ccc' : '#000', fontSize: 16 },
+    commentText: { color: isDark ? '#aaa' : '#555', fontSize: 14, marginLeft: 10 },
+    label: { fontSize: 16, color: isDark ? '#ccc' : '#000', marginBottom: 8 },
+    yamlInput: { borderColor: isDark ? '#ccc' : '#000', borderWidth: 1, borderRadius: 8, padding: 8, color: isDark ? '#fff' : '#000', marginBottom: 20 },
+    themeSelector: { flexDirection: 'row', marginBottom: 20 },
+    radioOption: { marginRight: 20 },
+    radioText: { fontSize: 16, color: isDark ? '#ccc' : '#000' },
+    saveButton: { backgroundColor: '#007aff', padding: 10, borderRadius: 8, alignItems: 'center', marginBottom: 20 },
+    saveButtonText: { color: '#fff', fontSize: 16 },
+    drawerContainer: { backgroundColor: isDark ? '#282828' : '#fff' },
+    drawerLabel: { color: isDark ? '#ccc' : '#000', fontSize: 16 },
   });
-};
+}
+
 
 //
 // Logging and export helper functions
@@ -249,55 +173,53 @@ const exportLogsFunction = async (logs, clearLogsCallback) => {
 //
 // Home Screen
 //
-function HomeScreen({ navigation, config, theme, reloadFlag }) {
+function HomeScreen({ config, theme, reloadFlag }) {
   const [logs, setLogs] = useState([]);
   const [commentModalVisible, setCommentModalVisible] = useState(false);
   const [commentText, setCommentText] = useState('');
+  const [commentInputHeight, setCommentInputHeight] = useState(20);
   const styles = getStyles(theme);
 
-  // Reload logs whenever reloadFlag changes.
+  // Load logs on mount or when reloadFlag changes
   useEffect(() => {
     (async () => {
-      const loadedLogs = await loadLogsFromStorage();
-      setLogs(loadedLogs);
+      const loaded = await loadLogsFromStorage();
+      setLogs(loaded);
     })();
   }, [reloadFlag]);
 
-  // Record an activity by appending a new log.
+  // Record activity button press
   const recordActivity = async (activity) => {
-    const newEntry = {
-      activity,
-      timestamp: new Date().toISOString(),
-      comments: [],
-    };
-    const updatedLogs = [...logs, newEntry];
-    await saveLogsToStorage(updatedLogs);
-    setLogs(updatedLogs);
+    const entry = { activity, timestamp: new Date().toISOString(), comments: [] };
+    const updated = [...logs, entry];
+    await saveLogsToStorage(updated);
+    setLogs(updated);
   };
 
-  // Add a comment to the most recent log.
+  // Add comment to last log
   const addComment = async () => {
-    if (logs.length === 0) {
-      Alert.alert('No logs available', 'Please log an activity first.');
+    if (!logs.length) {
+      Alert.alert('No logs', 'Please log an activity first.');
       return;
     }
-    let updatedLogs = [...logs];
-    const lastIndex = updatedLogs.length - 1;
-    if (!updatedLogs[lastIndex].comments) updatedLogs[lastIndex].comments = [];
-    updatedLogs[lastIndex].comments.push(commentText);
-    await saveLogsToStorage(updatedLogs);
-    setLogs(updatedLogs);
+    const updated = [...logs];
+    const idx = updated.length - 1;
+    updated[idx].comments = updated[idx].comments || [];
+    updated[idx].comments.push(commentText);
+    await saveLogsToStorage(updated);
+    setLogs(updated);
     setCommentText('');
     setCommentModalVisible(false);
+    setCommentInputHeight(20);
   };
 
   return (
     <View style={styles.container}>
-      {/* Title removed since the Menu bar now displays screen title */}
+      {/* Activity buttons */}
       <View style={styles.buttonContainer}>
-        {config.activities && config.activities.map((activity, index) => (
+        {config.activities.map((activity, i) => (
           <TouchableOpacity
-            key={index}
+            key={i}
             style={styles.activityButton}
             onPress={() => recordActivity(activity)}
           >
@@ -305,10 +227,13 @@ function HomeScreen({ navigation, config, theme, reloadFlag }) {
           </TouchableOpacity>
         ))}
       </View>
+
+      {/* Open comment modal */}
       <TouchableOpacity onPress={() => setCommentModalVisible(true)}>
         <Text style={styles.addCommentText}>➕ Add Comment</Text>
       </TouchableOpacity>
 
+      {/* Comment Modal */}
       <Modal visible={commentModalVisible} transparent animationType="slide">
         <KeyboardAvoidingView
           behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
@@ -318,22 +243,34 @@ function HomeScreen({ navigation, config, theme, reloadFlag }) {
             style={styles.modalOverlay}
             activeOpacity={1}
             onPressOut={() => setCommentModalVisible(false)}
-          >
-            <View style={styles.modalContent}>
-              <TextInput
-                style={styles.commentInput}
-                placeholder="Enter comment..."
-                placeholderTextColor={theme === 'dark' ? '#aaa' : '#555'}
-                value={commentText}
-                onChangeText={setCommentText}
-                onSubmitEditing={addComment}
-                autoFocus
-              />
-              <TouchableOpacity style={styles.submitButton} onPress={addComment}>
-                <Text style={styles.submitButtonText}>➤</Text>
-              </TouchableOpacity>
-            </View>
-          </TouchableOpacity>
+          />
+          <View style={[styles.modalContent, { flexDirection: 'row', alignItems: 'flex-end' }]}>            
+            <TextInput
+              style={[styles.commentInput, { height: commentInputHeight }]}
+              placeholder="Enter comment..."
+              placeholderTextColor={theme === 'dark' ? '#aaa' : '#555'}
+              value={commentText}
+              onChangeText={setCommentText}
+              multiline
+              // auto-grow up to 10 lines
+              onContentSizeChange={(e) => {
+                const minH = 20;
+                const maxH = 20 * 10;
+                const newH = e.nativeEvent.contentSize.height;
+                setCommentInputHeight(Math.max(Math.min(newH, maxH)), minH);
+              }}
+              // Web: Enter to send, Shift+Enter for newline
+              onKeyPress={(e) => {
+                if (Platform.OS === 'web' && e.nativeEvent.key === 'Enter' && !e.nativeEvent.shiftKey) {
+                  e.preventDefault();
+                  addComment();
+                }
+              }}
+            />
+            <TouchableOpacity style={styles.submitButton} onPress={addComment}>
+              <Text style={styles.submitButtonText}>→</Text>
+            </TouchableOpacity>
+          </View>
         </KeyboardAvoidingView>
       </Modal>
     </View>
@@ -341,43 +278,145 @@ function HomeScreen({ navigation, config, theme, reloadFlag }) {
 }
 
 //
-// Logs Screen
+// Logs Screen – Updated to allow inline editing
 //
 function LogsScreen({ theme }) {
+  // Store logs in original order (latest added at the end)
   const [logs, setLogs] = useState([]);
   const styles = getStyles(theme);
 
+  // State for inline log editing
+  const [editModalVisible, setEditModalVisible] = useState(false);
+  const [currentEditingIndex, setCurrentEditingIndex] = useState(null);
+  const [editedActivity, setEditedActivity] = useState("");
+  const [editedComments, setEditedComments] = useState("");
+
+  // Load logs (in original order) when screen is focused.
   useFocusEffect(
     useCallback(() => {
       (async () => {
         const loadedLogs = await loadLogsFromStorage();
-        setLogs(loadedLogs.slice().reverse());
+        setLogs(loadedLogs);
       })();
     }, [])
   );
 
-  const renderItem = ({ item }) => (
-    <View style={styles.logItem}>
-      <Text style={styles.logText}>
-        {item.timestamp.split('.')[0].replace('T', ' ')} - {item.activity}
-      </Text>
-      {item.comments &&
-        item.comments.map((comment, i) => (
-          <Text key={i} style={styles.commentText}>
-            • {comment}
+  // Open the edit modal for a given log.
+  // Note: since the FlatList displays logs in reverse order,
+  // we calculate the original index.
+  const openEditModal = (displayedIndex, item) => {
+    // Convert index from reversed array to original array index.
+    const originalIndex = logs.length - 1 - displayedIndex;
+    setCurrentEditingIndex(originalIndex);
+    setEditedActivity(item.activity);
+    setEditedComments(item.comments ? item.comments.join(", ") : "");
+    setEditModalVisible(true);
+  };
+
+  // Save edited log: update the logs array and storage.
+  const saveEditedLog = async () => {
+    if (currentEditingIndex === null) return;
+
+    // Create a copy of the logs array.
+    const updatedLogs = [...logs];
+
+    // Update the activity and comments.
+    updatedLogs[currentEditingIndex].activity = editedActivity;
+    // Split comments by comma and trim each entry (ignore empty strings).
+    updatedLogs[currentEditingIndex].comments = editedComments
+      .split(",")
+      .map((c) => c.trim())
+      .filter((c) => c);
+
+    // Save to AsyncStorage.
+    await saveLogsToStorage(updatedLogs);
+    setLogs(updatedLogs);
+    setEditModalVisible(false);
+  };
+
+  // Render a log item.
+  const renderItem = ({ item, index }) => {
+    // The data fed to FlatList will be the logs array reversed.
+    // Thus, "index" is the index in the reversed array.
+    return (
+      <TouchableOpacity onPress={() => openEditModal(index, item)}>
+        <View style={styles.logItem}>
+          <Text style={styles.logText}>
+            {item.timestamp.split('.')[0].replace('T', ' ')} - {item.activity}
           </Text>
-        ))}
-    </View>
-  );
+          {item.comments &&
+            item.comments.map((comment, i) => (
+              <Text key={i} style={styles.commentText}>
+                • {comment}
+              </Text>
+            ))}
+        </View>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <View style={styles.container}>
-      {/* Title removed */}
       <FlatList
-        data={logs}
+        data={[...logs].reverse()} // Display most recent log first.
         keyExtractor={(_, index) => index.toString()}
         renderItem={renderItem}
       />
+
+      {/* Modal for editing a log */}
+      <Modal visible={editModalVisible} transparent animationType="slide">
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.modalOverlay}
+        >
+          <TouchableOpacity
+            style={styles.modalOverlay}
+            activeOpacity={1}
+            onPressOut={() => setEditModalVisible(false)}
+          >
+            <View
+              style={[
+                styles.modalContent,
+                { flexDirection: 'column', alignItems: 'stretch' },
+              ]}
+            >
+              <Text style={[styles.label, { marginBottom: 10 }]}>
+                Edit Log
+              </Text>
+              <TextInput
+                style={[styles.commentInput, { marginBottom: 10 }]}
+                placeholder="Activity"
+                placeholderTextColor={theme === 'dark' ? '#aaa' : '#555'}
+                value={editedActivity}
+                onChangeText={setEditedActivity}
+                autoFocus
+              />
+              <TextInput
+                style={[styles.commentInput, { marginBottom: 10 }]}
+                placeholder="Comments (comma separated)"
+                placeholderTextColor={theme === 'dark' ? '#aaa' : '#555'}
+                value={editedComments}
+                onChangeText={setEditedComments}
+                multiline
+              />
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                <TouchableOpacity
+                  style={styles.submitButton}
+                  onPress={() => setEditModalVisible(false)}
+                >
+                  <Text style={styles.submitButtonText}>Cancel</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.submitButton}
+                  onPress={saveEditedLog}
+                >
+                  <Text style={styles.submitButtonText}>Save</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </TouchableOpacity>
+        </KeyboardAvoidingView>
+      </Modal>
     </View>
   );
 }
